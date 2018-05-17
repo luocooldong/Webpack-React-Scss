@@ -2,18 +2,52 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+class Toggle extends React.Component {
+  static defaultProps = {onToggle: () => {}}
+  state = {on: false}
+  toggle = () =>
+    this.setState(
+      ({on}) => ({on: !on}),
+      () => {
+        this.props.onToggle(this.state.on)
+      },
+    )
+  render() {
+    const {on} = this.state
+    return (
+      <Switch on={on} onClick={this.toggle} />
+    )
+  }
+}
+
+function Switch({on, className = '', ...props}) {
+  return (
+    <div className="toggle">
+      <input
+        className="toggle-input"
+        type="checkbox"
+      />
+      <button
+        className={`${className} toggle-btn ${on
+          ? 'toggle-btn-on'
+          : 'toggle-btn-off'}`}
+        aria-expanded={on}
+        {...props}
+      />
+    </div>
+  )
+}
+
+
+
+
+
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+      <Toggle
+      onToggle={on => console.log('toggle', on)}
+      />
     );
   }
 }
