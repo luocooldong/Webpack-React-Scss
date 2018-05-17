@@ -3,14 +3,18 @@ import PropTypes from 'prop-types';
 import './App.css';
 const TOGGLE_CONTEXT = '__toggle__'
 
-const ToggleOn = withToggle(({children, on}) => {
-  return on ? children : null
-})
-const ToggleOff = withToggle(({children, on}) => {
-  return on ? null : children
-})
+const ToggleOn = withToggle(
+  ({children, toggle: {on}}) => {
+    return on ? children : null
+  },
+)
+const ToggleOff = withToggle(
+  ({children, toggle: {on}}) => {
+    return on ? null : children
+  },
+)
 const ToggleButton = withToggle(
-  ({on, toggle, ...props}) => {
+  ({toggle: {on, toggle}, ...props}) => {
     return (
       <Switch
         on={on}
@@ -53,7 +57,7 @@ function withToggle(Component) {
   function Wrapper(props, context) {
     const toggleContext = context[TOGGLE_CONTEXT]
     return (
-      <Component {...toggleContext} {...props} />
+      <Component  {...props} toggle={toggleContext}  />
     )
   }
   Wrapper.contextTypes = {
@@ -62,11 +66,24 @@ function withToggle(Component) {
   return Wrapper
 }
 
-const MyToggle = withToggle(({on, toggle}) => (
-  <button onClick={toggle}>
-    {on ? 'on' : 'off'}
-  </button>
-))
+const MyEventComponent = withToggle(
+  function MyEventComponent({toggle, on, event}) {
+    const props = {[event]: on}
+    return toggle.on ? (
+      <button {...props}>
+        The {event} event
+      </button>
+    ) : null
+  },
+)
+
+const MyToggle = withToggle(
+  ({toggle: {on, toggle}}) => (
+    <button onClick={toggle}>
+      {on ? 'on' : 'off'}
+    </button>
+  ),
+)
 
 class App extends Component {
   render() {
@@ -79,6 +96,11 @@ class App extends Component {
         <Toggle.Button />
         <hr />
         <MyToggle />
+        <hr />
+        <MyEventComponent
+          event="onClick"
+          on={e => alert(e.type)}
+        />
       </Toggle>
     );
   }
