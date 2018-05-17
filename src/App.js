@@ -2,29 +2,24 @@ import React, { Component,  } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 const TOGGLE_CONTEXT = '__toggle__'
-function ToggleOn({children}, context) {
-  const {on} = context[TOGGLE_CONTEXT]
+
+const ToggleOn = withToggle(({children, on}) => {
   return on ? children : null
-}
-ToggleOn.contextTypes = {
-  [TOGGLE_CONTEXT]: PropTypes.object.isRequired,
-}
-function ToggleOff({children}, context) {
-  const {on} = context[TOGGLE_CONTEXT]
+})
+const ToggleOff = withToggle(({children, on}) => {
   return on ? null : children
-}
-ToggleOff.contextTypes = {
-  [TOGGLE_CONTEXT]: PropTypes.object.isRequired,
-}
-function ToggleButton(props, context) {
-  const {on, toggle} = context[TOGGLE_CONTEXT]
-  return (
-    <Switch on={on} onClick={toggle} {...props} />
-  )
-}
-ToggleButton.contextTypes = {
-  [TOGGLE_CONTEXT]: PropTypes.object.isRequired,
-}
+})
+const ToggleButton = withToggle(
+  ({on, toggle, ...props}) => {
+    return (
+      <Switch
+        on={on}
+        onClick={toggle}
+        {...props}
+      />
+    )
+  },
+)
 
 class Toggle extends React.Component {
   static On = ToggleOn
@@ -54,6 +49,41 @@ class Toggle extends React.Component {
   }
 }
 
+function withToggle(Component) {
+  function Wrapper(props, context) {
+    const toggleContext = context[TOGGLE_CONTEXT]
+    return (
+      <Component {...toggleContext} {...props} />
+    )
+  }
+  Wrapper.contextTypes = {
+    [TOGGLE_CONTEXT]: PropTypes.object.isRequired,
+  }
+  return Wrapper
+}
+
+const MyToggle = withToggle(({on, toggle}) => (
+  <button onClick={toggle}>
+    {on ? 'on' : 'off'}
+  </button>
+))
+
+class App extends Component {
+  render() {
+    return (
+      <Toggle
+       onToggle={on => console.log('toggle', on)}
+       >
+        <Toggle.On>The button is on</Toggle.On>
+        <Toggle.Off>The button is off</Toggle.Off>
+        <Toggle.Button />
+        <hr />
+        <MyToggle />
+      </Toggle>
+    );
+  }
+}
+
 function Switch({on, className = '', ...props}) {
   return (
     <div className="toggle">
@@ -70,21 +100,6 @@ function Switch({on, className = '', ...props}) {
       />
     </div>
   )
-}
-
-
-class App extends Component {
-  render() {
-    return (
-      <Toggle
-       onToggle={on => console.log('toggle', on)}
-       >
-        <Toggle.On>The button is on</Toggle.On>
-        <Toggle.Off>The button is off</Toggle.Off>
-        <Toggle.Button />
-      </Toggle>
-    );
-  }
 }
 
 export default App;
