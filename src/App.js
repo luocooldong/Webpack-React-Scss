@@ -39,9 +39,6 @@ function Switch({on, className = '', ...props}) {
 }
 
 
-
-
-
 class App extends Component {
   render() {
     return (
